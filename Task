@@ -1,0 +1,6 @@
+build a beautiful and unique front-end for a e-commerce website with html, css and react JS that has a modern and sleek design, with a focus on user experience and functionality that would able to work with a django backend.
+it should include product listing, user registration, transaction management, and order processing
+The website should have a user account page that allows users to view their order history, and update their personal information.
+The website should have a shopping cart that allows users to add and remove items, and view the total cost.
+The website should have a loading animation that is displayed while the website is loading. 
+The website should have a footer that contains links to important pages, such as the privacy policy, terms of service, and contact information.
