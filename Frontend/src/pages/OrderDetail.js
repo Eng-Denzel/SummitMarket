@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiMapPin, FiPackage } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin, FiPackage, FiCreditCard, FiTruck } from 'react-icons/fi';
 import { orderService } from '../services/api';
 import Loading from '../components/layout/Loading';
 import './OrderDetail.css';
@@ -51,6 +51,26 @@ const OrderDetail = () => {
     return statusLabels[status] || status;
   };
 
+  const getPaymentStatusClass = (status) => {
+    const statusClasses = {
+      pending: 'payment-pending',
+      completed: 'payment-completed',
+      failed: 'payment-failed',
+      refunded: 'payment-refunded',
+    };
+    return statusClasses[status] || 'payment-pending';
+  };
+
+  const getPaymentStatusLabel = (status) => {
+    const statusLabels = {
+      pending: 'Pending',
+      completed: 'Completed',
+      failed: 'Failed',
+      refunded: 'Refunded',
+    };
+    return statusLabels[status] || status;
+  };
+
   if (loading) {
     return <Loading fullScreen />;
   }
@@ -91,10 +111,67 @@ const OrderDetail = () => {
               })}
             </p>
           </div>
-          <span className={`order-status-badge ${getStatusClass(order.status)}`}>
-            {getStatusLabel(order.status)}
-          </span>
+          <div className="order-statuses">
+            <span className={`order-status-badge ${getStatusClass(order.status)}`}>
+              {getStatusLabel(order.status)}
+            </span>
+            <span className={`order-status-badge ${getPaymentStatusClass(order.payment_status)}`}>
+              {getPaymentStatusLabel(order.payment_status)}
+            </span>
+          </div>
         </motion.div>
+
+        {/* Order Tracking Progress */}
+        <div className="tracking-progress">
+          <h2><FiTruck /> Order Tracking</h2>
+          <div className="progress-steps">
+            <div className={`step ${order.status !== 'pending' ? 'completed' : ''}`}>
+              <div className="step-icon">1</div>
+              <div className="step-label">Order Placed</div>
+              {order.status !== 'pending' && (
+                <div className="step-date">
+                  {new Date(order.created_at).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+            <div className={`step ${['processing', 'shipped', 'delivered'].includes(order.status) ? 'completed' : ''}`}>
+              <div className="step-icon">2</div>
+              <div className="step-label">Processing</div>
+              {order.status === 'processing' && (
+                <div className="step-date">
+                  {new Date(order.updated_at).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+            <div className={`step ${['shipped', 'delivered'].includes(order.status) ? 'completed' : ''}`}>
+              <div className="step-icon">3</div>
+              <div className="step-label">Shipped</div>
+              {order.status === 'shipped' && order.shipped_date && (
+                <div className="step-date">
+                  {new Date(order.shipped_date).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+            <div className={`step ${order.status === 'delivered' ? 'completed' : ''}`}>
+              <div className="step-icon">4</div>
+              <div className="step-label">Delivered</div>
+              {order.status === 'delivered' && (
+                <div className="step-date">
+                  {new Date(order.updated_at).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {order.tracking_number && (
+            <div className="tracking-info">
+              <p><strong>Tracking Number:</strong> {order.tracking_number}</p>
+              {order.estimated_delivery_date && (
+                <p><strong>Estimated Delivery:</strong> {new Date(order.estimated_delivery_date).toLocaleDateString()}</p>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="order-detail-layout">
           <motion.div
@@ -139,6 +216,34 @@ const OrderDetail = () => {
                 <p>{order.shipping_address}</p>
                 <p>{order.city}, {order.postal_code}</p>
                 <p>{order.country}</p>
+              </div>
+            </div>
+
+            <div className="info-card">
+              <h2><FiCreditCard /> Payment Information</h2>
+              <div className="payment-details">
+                <div className="payment-row">
+                  <span>Payment Method</span>
+                  <span>{order.payment_method || 'Not specified'}</span>
+                </div>
+                <div className="payment-row">
+                  <span>Payment Status</span>
+                  <span className={`payment-status ${getPaymentStatusClass(order.payment_status)}`}>
+                    {getPaymentStatusLabel(order.payment_status)}
+                  </span>
+                </div>
+                {order.payment_transaction_id && (
+                  <div className="payment-row">
+                    <span>Transaction ID</span>
+                    <span>{order.payment_transaction_id}</span>
+                  </div>
+                )}
+                {order.payment_date && (
+                  <div className="payment-row">
+                    <span>Payment Date</span>
+                    <span>{new Date(order.payment_date).toLocaleString()}</span>
+                  </div>
+                )}
               </div>
             </div>
 

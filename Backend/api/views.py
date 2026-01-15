@@ -1,10 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
+import time
 from .models import Category, Product, Cart, CartItem, Order, OrderItem
 from .serializers import CategorySerializer, ProductSerializer, CartSerializer, CartItemSerializer, OrderSerializer, RegisterSerializer
 
@@ -202,7 +205,10 @@ def create_order(request):
         shipping_address=request.data.get('shipping_address', ''),
         city=request.data.get('city', ''),
         postal_code=request.data.get('postal_code', ''),
-        country=request.data.get('country', '')
+        country=request.data.get('country', ''),
+        payment_method=request.data.get('payment_method', ''),
+        # Set initial payment status to pending
+        payment_status='pending'
     )
     
     # Create order items
@@ -219,3 +225,48 @@ def create_order(request):
     
     serializer = OrderSerializer(order)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def process_payment(request, order_id):
+    """Process payment for an order"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # In a real application, you would integrate with a payment gateway here
+    # For this example, we'll simulate a successful payment
+    payment_method = request.data.get('payment_method', 'credit_card')
+    transaction_id = request.data.get('transaction_id', f'txn_{order.id}_{int(time.time())}')
+    
+    # Update order with payment information
+    order.payment_method = payment_method
+    order.payment_transaction_id = transaction_id
+    order.payment_status = 'completed'
+    order.payment_date = timezone.now()
+    order.save()
+    
+    serializer = OrderSerializer(order)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def update_shipping_status(request, order_id):
+    """Update shipping status and tracking information"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Update shipping information
+    order.status = request.data.get('status', order.status)
+    order.tracking_number = request.data.get('tracking_number', order.tracking_number)
+    
+    if order.status == 'shipped' and not order.shipped_date:
+        order.shipped_date = timezone.now()
+    
+    # Set estimated delivery date (5 days from shipping date)
+    if order.shipped_date and not order.estimated_delivery_date:
+        order.estimated_delivery_date = order.shipped_date + timedelta(days=5)
+    
+    order.save()
+    
+    serializer = OrderSerializer(order)
+    return Response(serializer.data, status=status.HTTP_200_OK)

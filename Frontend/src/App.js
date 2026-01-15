@@ -23,6 +23,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminCategories from './pages/admin/AdminCategories';
 import ProductForm from './pages/admin/ProductForm';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="categories" element={<AdminCategories />} />
             </Route>
 
             {/* Public Routes */}

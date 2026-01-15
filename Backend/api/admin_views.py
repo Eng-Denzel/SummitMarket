@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User
 from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import datetime, timedelta
 from .models import Category, Product, Order, OrderItem
 from .admin_serializers import (
     AdminUserSerializer, 
@@ -42,6 +44,72 @@ def dashboard_stats(request):
     
     serializer = DashboardStatsSerializer(stats)
     return Response(serializer.data)
+
+
+# Sales Report
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def sales_report(request):
+    """Generate sales report data"""
+    # Get date range from query parameters
+    start_date = request.query_params.get('start_date')
+    end_date = request.query_params.get('end_date')
+    
+    # Convert to datetime objects if provided
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    else:
+        # Default to 30 days ago
+        start_date = timezone.now() - timedelta(days=30)
+    
+    if end_date:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)  # Include the end date
+    else:
+        end_date = timezone.now()
+    
+    # Filter orders by date range and completed payments
+    orders = Order.objects.filter(
+        created_at__gte=start_date,
+        created_at__lte=end_date,
+        payment_status='completed'
+    )
+    
+    # Calculate sales metrics
+    total_revenue = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+    total_orders = orders.count()
+    avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+    
+    # Group by date for sales chart
+    daily_sales = orders.extra({'date': "date(created_at)"}).values('date').annotate(
+        total_revenue=Sum('total_amount'),
+        total_orders=Count('id')
+    ).order_by('date')
+    
+    # Top selling products
+    top_products = OrderItem.objects.filter(order__in=orders).values(
+        'product__name'
+    ).annotate(
+        total_quantity=Sum('quantity'),
+        total_revenue=Sum(models.F('price') * models.F('quantity'))
+    ).order_by('-total_quantity')[:10]
+    
+    # Orders by status
+    orders_by_status = orders.values('status').annotate(count=Count('id'))
+    
+    report_data = {
+        'total_revenue': total_revenue,
+        'total_orders': total_orders,
+        'avg_order_value': avg_order_value,
+        'daily_sales': list(daily_sales),
+        'top_products': list(top_products),
+        'orders_by_status': list(orders_by_status),
+        'date_range': {
+            'start': start_date.strftime('%Y-%m-%d'),
+            'end': (end_date - timedelta(days=1)).strftime('%Y-%m-%d')
+        }
+    }
+    
+    return Response(report_data)
 
 
 # User Management ViewSet
@@ -111,6 +179,30 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(name__icontains=search)
         
         return queryset
+    
+    def create(self, request, *args, **kwargs):
+        """Override create to provide better error messages"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            # Log the errors for debugging
+            print("Category creation errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, *args, **kwargs):
+        """Override update to provide better error messages"""
+        partial = True  # Allow partial updates
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            # Log the errors for debugging
+            print("Category update errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Product Management ViewSet
@@ -175,7 +267,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().order_by('-created_at')
     serializer_class = AdminOrderSerializer
     permission_classes = [IsAdminUser]
-    http_method_names = ['get', 'put', 'patch', 'delete']  # No POST for orders
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']  # Added POST for actions
     
     def get_queryset(self):
         queryset = Order.objects.all().order_by('-created_at')

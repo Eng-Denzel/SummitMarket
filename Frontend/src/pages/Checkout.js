@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { FiCheck } from 'react-icons/fi';
+import { FiCheck, FiCreditCard, FiDollarSign, FiSmartphone } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { orderService } from '../services/api';
 import { toast } from 'react-toastify';
@@ -12,6 +12,7 @@ import './Checkout.css';
 
 const Checkout = () => {
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -29,6 +30,7 @@ const Checkout = () => {
         city: data.city,
         postal_code: data.postal_code,
         country: data.country,
+        payment_method: paymentMethod,
       };
 
       const order = await orderService.createOrder(orderData);
@@ -42,6 +44,12 @@ const Checkout = () => {
       setLoading(false);
     }
   };
+
+  const paymentMethods = [
+    { id: 'credit_card', name: 'Credit Card', icon: <FiCreditCard /> },
+    { id: 'paypal', name: 'PayPal', icon: <FiDollarSign /> },
+    { id: 'mobile_money', name: 'Mobile Money', icon: <FiSmartphone /> },
+  ];
 
   return (
     <div className="checkout-page">
@@ -120,6 +128,33 @@ const Checkout = () => {
                   {errors.country && (
                     <span className="error-message">{errors.country.message}</span>
                   )}
+                </div>
+
+                <div className="checkout-step">
+                  <div className="step-header">
+                    <div className="step-number">
+                      <FiCheck />
+                    </div>
+                    <h2>Payment Method</h2>
+                  </div>
+
+                  <div className="payment-methods">
+                    {paymentMethods.map((method) => (
+                      <div
+                        key={method.id}
+                        className={`payment-method ${
+                          paymentMethod === method.id ? 'selected' : ''
+                        }`}
+                        onClick={() => setPaymentMethod(method.id)}
+                      >
+                        <div className="payment-method-icon">{method.icon}</div>
+                        <div className="payment-method-name">{method.name}</div>
+                        <div className="payment-method-radio">
+                          <div className={`radio-indicator ${paymentMethod === method.id ? 'selected' : ''}`} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <Button type="submit" fullWidth size="large" loading={loading}>

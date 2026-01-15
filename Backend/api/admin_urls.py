@@ -10,5 +10,6 @@ router.register(r'orders', admin_views.AdminOrderViewSet, basename='admin-order'
 
 urlpatterns = [
     path('stats/', admin_views.dashboard_stats, name='admin-stats'),
+    path('sales-report/', admin_views.sales_report, name='admin-sales-report'),
     path('', include(router.urls)),
 ]

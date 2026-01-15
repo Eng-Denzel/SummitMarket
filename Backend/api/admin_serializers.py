@@ -27,22 +27,27 @@ class AdminUserSerializer(serializers.ModelSerializer):
 class AdminCategorySerializer(serializers.ModelSerializer):
     """Serializer for admin category management"""
     product_count = serializers.SerializerMethodField()
-    image = serializers.SerializerMethodField()
     
     class Meta:
         model = Category
         fields = '__all__'
+        read_only_fields = ('created_at',)
     
     def get_product_count(self, obj):
         return obj.products.count()
     
-    def get_image(self, obj):
-        if obj.image:
+    def to_representation(self, instance):
+        """Customize the representation to include full image URL"""
+        data = super().to_representation(instance)
+        if instance.image:
             request = self.context.get('request')
             if request is not None:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
+                data['image'] = request.build_absolute_uri(instance.image.url)
+            else:
+                data['image'] = instance.image.url
+        else:
+            data['image'] = None
+        return data
 
 
 class AdminProductSerializer(serializers.ModelSerializer):

@@ -137,6 +137,11 @@ export const orderService = {
     const response = await api.post('/orders/create/', orderData);
     return response.data;
   },
+
+  processPayment: async (orderId, paymentData) => {
+    const response = await api.post(`/orders/${orderId}/payment/`, paymentData);
+    return response.data;
+  },
 };
 
 export default api;

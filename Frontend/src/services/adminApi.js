@@ -5,9 +5,6 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 // Create axios instance with default config
 const adminApi = axios.create({
   baseURL: `${API_URL}/admin`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Add token to requests
@@ -26,6 +23,9 @@ adminApi.interceptors.request.use(
 
 // Dashboard Stats
 export const getDashboardStats = () => adminApi.get('/stats/');
+
+// Sales Report
+export const getSalesReport = (params) => adminApi.get('/sales-report/', { params });
 
 // User Management
 export const getUsers = (params) => adminApi.get('/users/', { params });

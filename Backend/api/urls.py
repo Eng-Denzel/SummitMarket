@@ -23,4 +23,6 @@ urlpatterns = [
     # Orders
     path('orders/', views.order_list_view, name='order-list'),
     path('orders/create/', views.create_order, name='create-order'),
+    path('orders/<int:order_id>/payment/', views.process_payment, name='process-payment'),
+    path('orders/<int:order_id>/shipping/', views.update_shipping_status, name='update-shipping'),
 ]
