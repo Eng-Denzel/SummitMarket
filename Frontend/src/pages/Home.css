@@ -48,16 +48,52 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.hero-image-placeholder {
+.hero-logo {
   width: 100%;
-  aspect-ratio: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.logo-circle {
+  width: 280px;
+  height: 280px;
+  background: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: float 3s ease-in-out infinite;
+}
+
+.logo-text {
   font-size: 8rem;
-  color: rgba(255, 255, 255, 0.3);
+  font-weight: 900;
+  background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.05em;
+}
+
+.logo-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 /* Features Section */
@@ -252,9 +288,17 @@
     font-size: 2.5rem;
   }
 
-  .hero-image-placeholder {
-    max-width: 400px;
-    margin: 0 auto;
+  .logo-circle {
+    width: 220px;
+    height: 220px;
+  }
+
+  .logo-text {
+    font-size: 6rem;
+  }
+
+  .logo-name {
+    font-size: 2rem;
   }
 
   .products-grid {

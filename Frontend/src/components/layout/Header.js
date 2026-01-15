@@ -69,7 +69,7 @@ const Header = () => {
                   <Link to="/account" className="dropdown-item">My Account</Link>
                   <Link to="/orders" className="dropdown-item">Orders</Link>
                   {user?.is_staff && (
-                    <Link to="/admin" className="dropdown-item">Admin Dashboard</Link>
+                    <Link to="/dashboard" className="dropdown-item">Admin Dashboard</Link>
                   )}
                   <button onClick={handleLogout} className="dropdown-item">
                     <FiLogOut /> Logout

@@ -8,11 +8,11 @@ const AdminLayout = () => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: 'fa-chart-line' },
-    { path: '/admin/users', label: 'Users', icon: 'fa-users' },
-    { path: '/admin/products', label: 'Products', icon: 'fa-box' },
-    { path: '/admin/orders', label: 'Orders', icon: 'fa-shopping-cart' },
-    { path: '/admin/categories', label: 'Categories', icon: 'fa-tags' },
+    { path: '/dashboard', label: 'Dashboard', icon: 'fa-chart-line' },
+    { path: '/dashboard/users', label: 'Users', icon: 'fa-users' },
+    { path: '/dashboard/products', label: 'Products', icon: 'fa-box' },
+    { path: '/dashboard/orders', label: 'Orders', icon: 'fa-shopping-cart' },
+    { path: '/dashboard/categories', label: 'Categories', icon: 'fa-tags' },
   ];
 
   return (

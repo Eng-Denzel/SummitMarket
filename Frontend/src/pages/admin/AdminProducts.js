@@ -80,7 +80,7 @@ const AdminProducts = () => {
     <div className="admin-products">
       <div className="page-header">
         <h1>Product Management</h1>
-        <Link to="/admin/products/new" className="btn-primary">
+        <Link to="/dashboard/products/new" className="btn-primary">
           <i className="fas fa-plus"></i> Add Product
         </Link>
       </div>
@@ -118,11 +118,14 @@ const AdminProducts = () => {
           <div key={product.id} className="product-card">
             <div className="product-image">
               {product.image ? (
-                <img src={product.image} alt={product.name} />
+                <img
+                  src={product.image.startsWith('http') ? product.image : `${process.env.REACT_APP_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${product.image}`}
+                  alt={product.name}
+                />
               ) : (
                 <div className="no-image">No Image</div>
               )}
-              {product.stock < 10 && (
+              {product.stock < 10 && product.stock > 0 && (
                 <span className="stock-badge low">Low Stock</span>
               )}
               {product.stock === 0 && (
@@ -159,7 +162,7 @@ const AdminProducts = () => {
                   <i className="fas fa-boxes"></i>
                 </button>
                 <Link
-                  to={`/admin/products/edit/${product.id}`}
+                  to={`/dashboard/products/edit/${product.id}`}
                   className="btn-edit"
                   title="Edit Product"
                 >

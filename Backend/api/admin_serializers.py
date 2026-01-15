@@ -49,19 +49,21 @@ class AdminProductSerializer(serializers.ModelSerializer):
     """Serializer for admin product management"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     discounted_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    image = serializers.SerializerMethodField()
     
     class Meta:
         model = Product
         fields = '__all__'
     
-    def get_image(self, obj):
-        if obj.image:
+    def to_representation(self, instance):
+        """Customize the representation to include full image URL"""
+        data = super().to_representation(instance)
+        if instance.image:
             request = self.context.get('request')
             if request is not None:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
+                data['image'] = request.build_absolute_uri(instance.image.url)
+            else:
+                data['image'] = instance.image.url
+        return data
 
 
 class AdminOrderSerializer(serializers.ModelSerializer):

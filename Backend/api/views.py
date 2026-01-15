@@ -62,7 +62,9 @@ def register_view(request):
                 'username': user.username,
                 'email': user.email,
                 'first_name': user.first_name,
-                'last_name': user.last_name
+                'last_name': user.last_name,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser
             }
         }, status=status.HTTP_201_CREATED)
     print('[REGISTER DEBUG] Serializer validation failed:', serializer.errors)
@@ -92,7 +94,9 @@ def login_view(request):
                     'username': user.username,
                     'email': user.email,
                     'first_name': user.first_name,
-                    'last_name': user.last_name
+                    'last_name': user.last_name,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser
                 }
             }
             print(f'[LOGIN DEBUG] Sending response: {response_data}')

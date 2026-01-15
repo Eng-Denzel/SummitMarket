@@ -61,8 +61,11 @@ const Home = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="hero-image-placeholder">
-              <FiShoppingBag />
+            <div className="hero-logo">
+              <div className="logo-circle">
+                <span className="logo-text">SM</span>
+              </div>
+              <h2 className="logo-name">SummitMarket</h2>
             </div>
           </motion.div>
         </div>

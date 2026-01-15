@@ -23,6 +23,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import ProductForm from './pages/admin/ProductForm';
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
           <Routes>
             {/* Admin Routes */}
             <Route
-              path="/admin/*"
+              path="/dashboard/*"
               element={
                 <AdminRoute>
                   <AdminLayout />
@@ -42,6 +43,8 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="products/new" element={<ProductForm />} />
+              <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<AdminOrders />} />
             </Route>
 
